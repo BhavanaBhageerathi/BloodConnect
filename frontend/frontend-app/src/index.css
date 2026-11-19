@@ -1,0 +1,60 @@
+/* Global styling */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f8f9fa;
+  color: #212529;
+}
+
+a {
+  text-decoration: none;
+}
+
+/* BloodConnect theme */
+
+:root {
+  --primary-red: #dc3545;
+  --dark-red: #b02a37;
+  --light-red: #f8d7da;
+  --white: #ffffff;
+  --page-bg: #f8f9fa;
+}
+
+/* Primary button */
+
+.btn-blood {
+  background-color: var(--primary-red);
+  color: white;
+  border: none;
+}
+
+.btn-blood:hover {
+  background-color: var(--dark-red);
+  color: white;
+}
+
+/* Dashboard cards */
+
+.dashboard-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: none;
+}
+
+/* Dashboard icons */
+
+.card-icon {
+  background-color: var(--light-red);
+  color: var(--primary-red);
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 24px;
+}
