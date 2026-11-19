@@ -1,0 +1,117 @@
+# ==========================================
+# ENVIRONMENT VARIABLES
+# ==========================================
+.env
+.env.*
+!.env.example
+
+
+# ==========================================
+# PYTHON
+# ==========================================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python virtual environments
+venv/
+env/
+myvirtualenv/
+.venv/
+
+# Python package files
+*.egg
+*.egg-info/
+dist/
+build/
+
+
+# ==========================================
+# DJANGO
+# ==========================================
+*.log
+local_settings.py
+
+# SQLite database
+db.sqlite3
+db.sqlite3-journal
+
+# Media files
+media/
+
+# Static files collected during deployment
+staticfiles/
+
+
+# ==========================================
+# IDE AND EDITOR
+# ==========================================
+.vscode/
+.idea/
+
+# VS Code settings
+*.code-workspace
+
+# PyCharm
+*.iml
+
+
+# ==========================================
+# FRONTEND - NODE
+# ==========================================
+node_modules/
+
+# Build files
+dist/
+build/
+
+# Vite
+.vite/
+
+# npm logs
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+
+# ==========================================
+# REACT
+# ==========================================
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+
+# ==========================================
+# AI / RAG
+# ==========================================
+
+# ChromaDB generated vector database
+chroma_db/
+**/chroma_db/
+
+# Generated embeddings and model cache
+.cache/
+huggingface/
+**/.cache/
+
+# AI-generated temporary files
+*.pkl
+*.pickle
+
+
+# ==========================================
+# OS FILES
+# ==========================================
+.DS_Store
+Thumbs.db
+desktop.ini
+
+
+# ==========================================
+# TEMPORARY FILES
+# ==========================================
+*.tmp
+*.temp
+*.bak
