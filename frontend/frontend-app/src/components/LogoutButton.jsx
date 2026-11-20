@@ -24,7 +24,8 @@ function LogoutButton() {
 
             alert('Logged out successfully!');
 
-            navigate('/login');
+            window.location.href = '/login'; 
+            // causes a refresh which is a fix for our chatbot
         }
     };
 

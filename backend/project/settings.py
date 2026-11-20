@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'notifications',
     'admin_panel',
     'rest_framework_simplejwt.token_blacklist',
+    'chatbot',
 ]
 
 MIDDLEWARE = [

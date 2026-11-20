@@ -1,0 +1,46 @@
+BLOODCONNECT APPLICATION GUIDE
+
+Purpose
+BloodConnect is a blood donation management platform intended to connect donors, requesters/patients, blood banks, hospitals, and administrators. It supports donation coordination and information sharing.
+
+Important limitation
+BloodConnect is a coordination platform. It does not itself collect, test, store, or transfuse blood. These activities are performed by authorized blood centres and healthcare facilities.
+
+User roles
+- Donor: creates an account, maintains a donor profile, submits verification information when required, manages donation availability, and may respond to donation requests or participate in camps.
+- Requester: creates a blood request and provides information required by the application. For urgent needs, contact the treating hospital and licensed blood centre directly.
+- Blood Bank: an eligible/approved account may manage its profile, inventory information, and operations permitted by the application.
+- Administrator: oversees users, verification/moderation workflows, records, and platform operations.
+
+Registration and account access
+Users register and sign in through the application. Never share passwords, OTPs, access tokens, refresh tokens, or API keys with the chatbot.
+
+Donor profile and verification
+A donor may need to provide profile and verification details. Verification status is determined by the application's review workflow. The chatbot cannot approve a donor or change verification status.
+
+Donor availability
+Availability is a platform status, not medical clearance. Donors must still be screened by blood-centre staff before donating.
+
+Project cooldown rule
+BloodConnect's configured project rule is a cooldown of 3 months for male donors and 4 months for female/other donors after whole-blood donation. Actual eligibility and timing must be confirmed by the blood centre under current rules.
+
+Blood requests
+Requesters submit requests using the application's workflow. Inventory and request information may change. Contact the blood centre or hospital directly to confirm availability, component, compatibility, and urgency.
+
+Blood bank inventory
+Inventory displayed in BloodConnect is informational and may change. Confirm directly with the blood centre before travelling or making clinical decisions. Compatibility is determined by blood-bank testing.
+
+Camps
+Camp registration or availability in the application does not guarantee acceptance to donate. Donors undergo screening at the camp or blood centre.
+
+Privacy
+Do not enter unnecessary sensitive medical information, government ID numbers, passwords, OTPs, or payment information into the chatbot. The chatbot must not reveal another user's profile, request, donor details, or conversation.
+
+Troubleshooting
+- Sign-in issue: check credentials and use the supported account-recovery process.
+- Verification pending: wait for the review process or contact platform support.
+- Incorrect availability/cooldown: contact platform support; medical eligibility is decided by the blood centre.
+- Urgent request: contact the hospital and licensed blood centre directly.
+
+Chatbot scope
+The chatbot explains application features and general blood-donation education. It cannot perform account actions unless a dedicated authenticated API is implemented. It must not make medical decisions and should acknowledge when information is unavailable.

@@ -1,0 +1,15 @@
+REFERENCE SOURCES AND REVIEW NOTES
+
+The health and donor criteria content is general education and must be reviewed periodically. The blood-centre medical officer and current Indian rules determine final eligibility.
+
+Official/authoritative sources consulted:
+- Government of India e-RaktKosh, Before You Donate: https://eraktkosh.mohfw.gov.in/BLDAHIMS/bloodbank/donateblood.cnt
+- Government of India e-RaktKosh FAQ: https://eraktkosh.mohfw.gov.in/BLDAHIMS/bloodbank/eraktkoshfaq.cnt
+- Government of India, Guidelines for Blood Donor Selection and Blood Donor Deferral 2025: https://www.eraktkosh.mohfw.gov.in/BLDAHIMS/bloodbank/about.cnt?hmode=DOWNLOADDOCUMENTNHRM&type=20
+- WHO, Who can give blood?: https://www.who.int/campaigns/world-blood-donor-day/2020/who-can-give-blood
+- WHO, Blood products: blood donation: https://www.who.int/news-room/questions-and-answers/item/blood-products-why-should-i-donate-blood
+- WHO, Blood safety and availability: https://www.who.int/news-room/fact-sheets/detail/blood-safety-and-availability
+
+Application-specific descriptions are based on BloodConnect project requirements discussed during development. Update this file if the actual implemented features or business rules change.
+
+Do not treat chatbot knowledge-base content as medical advice.

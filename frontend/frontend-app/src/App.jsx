@@ -4,6 +4,9 @@ import Home from './pages/Home';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import AboutUs from './pages/AboutUs';
+import Chatbot from "./components/Chatbot";
+
+
 
 import ProtectedRoute from './components/ProtectedRoute';
 // DONOR IMPORTS
@@ -399,16 +402,8 @@ function App() {
                 />
 
 
-
-
-
-
-
-
-
-
-
             </Routes>
+            <Chatbot />
         </BrowserRouter>
     );
 }
