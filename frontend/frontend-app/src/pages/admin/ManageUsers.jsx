@@ -7,6 +7,9 @@ function ManageUsers() {
     const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 
     const [users, setUsers] = useState([]);
+    const [nextPage, setNextPage] = useState(null);
+    const [previousPage, setPreviousPage] = useState(null);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -15,18 +18,44 @@ function ManageUsers() {
     const [roleFilter, setRoleFilter] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
 
-    // Fetch all users
+    // Fetch users
     useEffect(() => {
         fetchUsers();
-    }, []);
+    }, [roleFilter, statusFilter]);
 
-    const fetchUsers = async () => {
+
+    // Fetch users with pagination and filters
+    const fetchUsers = async (url = 'admin/users/') => {
 
         try {
 
-            const response = await API.get('admin/users/');
+            setLoading(true);
+            setError('');
 
-            setUsers(response.data);
+            let response;
+
+            // First page with filters
+            if (url === 'admin/users/') {
+
+                response = await API.get(url, {
+                    params: {
+                        role: roleFilter || undefined,
+                        is_active: statusFilter || undefined
+                    }
+                });
+
+            }
+
+            // Next or previous page
+            else {
+
+                response = await API.get(url);
+
+            }
+
+            setUsers(response.data.results);
+            setNextPage(response.data.next);
+            setPreviousPage(response.data.previous);
 
         }
         catch (error) {
@@ -72,7 +101,10 @@ function ManageUsers() {
             setUsers(prevUsers =>
                 prevUsers.map(item =>
                     item.id === user.id
-                        ? { ...item, is_active: response.data.is_active }
+                        ? {
+                            ...item,
+                            is_active: response.data.is_active
+                        }
                         : item
                 )
             );
@@ -97,24 +129,17 @@ function ManageUsers() {
     };
 
 
-    // Search and filter users
+    // Search users on the current page
     const filteredUsers = users.filter(user => {
 
         const searchValue = search.toLowerCase();
 
         const matchesSearch =
             user.username.toLowerCase().includes(searchValue) ||
-            user.full_name.toLowerCase().includes(searchValue) ||
-            user.email.toLowerCase().includes(searchValue);
+            (user.full_name || '').toLowerCase().includes(searchValue) ||
+            (user.email || '').toLowerCase().includes(searchValue);
 
-        const matchesRole =
-            !roleFilter || user.role === roleFilter;
-
-        const matchesStatus =
-            !statusFilter ||
-            user.is_active.toString() === statusFilter;
-
-        return matchesSearch && matchesRole && matchesStatus;
+        return matchesSearch;
 
     });
 
@@ -395,7 +420,10 @@ function ManageUsers() {
                                                         : 'bg-secondary'
                                                 }`}>
 
-                                                    {user.is_active ? 'Active' : 'Inactive'}
+                                                    {user.is_active
+                                                        ? 'Active'
+                                                        : 'Inactive'
+                                                    }
 
                                                 </span>
 
@@ -438,6 +466,45 @@ function ManageUsers() {
                                 </tbody>
 
                             </table>
+
+                        </div>
+
+                    )}
+
+
+                    {/* Pagination */}
+
+                    {!loading && users.length > 0 && (
+
+                        <div className="d-flex justify-content-between align-items-center mt-4">
+
+                            <button
+                                className="btn btn-outline-danger"
+                                disabled={!previousPage}
+                                onClick={() => fetchUsers(previousPage)}
+                            >
+
+                                <i className="bi bi-arrow-left me-2"></i>
+                                Previous
+
+                            </button>
+
+
+                            <span className="text-muted">
+                                Showing {filteredUsers.length} users
+                            </span>
+
+
+                            <button
+                                className="btn btn-outline-danger"
+                                disabled={!nextPage}
+                                onClick={() => fetchUsers(nextPage)}
+                            >
+
+                                Next
+                                <i className="bi bi-arrow-right ms-2"></i>
+
+                            </button>
 
                         </div>
 

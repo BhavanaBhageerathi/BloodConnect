@@ -1,12 +1,10 @@
-from django.shortcuts import render
-
-# Create your views here.
 from django.db.models import Count
 from django.shortcuts import get_object_or_404
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.pagination import PageNumberPagination
 
 from permissions import IsAdmin
 
@@ -37,6 +35,28 @@ from .serializers import (
     AdminCampRegistrationSerializer,
     AdminNotificationSerializer
 )
+
+
+# =====================================
+# GLOBAL PAGINATION HELPER
+# =====================================
+
+def paginate_queryset(request, queryset, serializer_class, view=None):
+
+    paginator = PageNumberPagination()
+
+    page = paginator.paginate_queryset(
+        queryset,
+        request,
+        view=view
+    )
+
+    serializer = serializer_class(
+        page,
+        many=True
+    )
+
+    return paginator.get_paginated_response(serializer.data)
 
 
 # =====================================
@@ -99,7 +119,10 @@ class AdminDashboardView(APIView):
 
         }
 
-        return Response(data, status=status.HTTP_200_OK)
+        return Response(
+            data,
+            status=status.HTTP_200_OK
+        )
 
 
 # =====================================
@@ -139,12 +162,12 @@ class AdminUserListView(APIView):
                 is_active=(active == 'true')
             )
 
-        serializer = AdminUserSerializer(
+        return paginate_queryset(
+            request,
             queryset,
-            many=True
+            AdminUserSerializer,
+            self
         )
-
-        return Response(serializer.data)
 
 
 class AdminUserStatusView(APIView):
@@ -153,7 +176,10 @@ class AdminUserStatusView(APIView):
 
     def patch(self, request, pk):
 
-        user = get_object_or_404(User, pk=pk)
+        user = get_object_or_404(
+            User,
+            pk=pk
+        )
 
         if user.pk == request.user.pk:
 
@@ -162,23 +188,28 @@ class AdminUserStatusView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        serializer = AdminUserStatusSerializer(data=request.data)
+        serializer = AdminUserStatusSerializer(
+            data=request.data
+        )
 
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(
+            raise_exception=True
+        )
 
         user.is_active = serializer.validated_data['is_active']
 
-        user.save(update_fields=['is_active'])
+        user.save(
+            update_fields=['is_active']
+        )
 
-        return Response({
-
-            'message': 'User status updated successfully.',
-
-            'user_id': user.id,
-
-            'is_active': user.is_active
-
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                'message': 'User status updated successfully.',
+                'user_id': user.id,
+                'is_active': user.is_active
+            },
+            status=status.HTTP_200_OK
+        )
 
 
 # =====================================
@@ -211,12 +242,12 @@ class AdminBloodBankListView(APIView):
                 verification_status=bank_status
             )
 
-        serializer = AdminBloodBankSerializer(
+        return paginate_queryset(
+            request,
             queryset,
-            many=True
+            AdminBloodBankSerializer,
+            self
         )
-
-        return Response(serializer.data)
 
 
 class AdminBloodBankReviewView(APIView):
@@ -234,23 +265,26 @@ class AdminBloodBankReviewView(APIView):
             data=request.data
         )
 
-        serializer.is_valid(raise_exception=True)
+        serializer.is_valid(
+            raise_exception=True
+        )
 
         bank.verification_status = serializer.validated_data[
             'verification_status'
         ]
 
-        bank.save(update_fields=['verification_status'])
+        bank.save(
+            update_fields=['verification_status']
+        )
 
-        return Response({
-
-            'message': 'Blood bank reviewed successfully.',
-
-            'id': bank.id,
-
-            'verification_status': bank.verification_status
-
-        }, status=status.HTTP_200_OK)
+        return Response(
+            {
+                'message': 'Blood bank reviewed successfully.',
+                'id': bank.id,
+                'verification_status': bank.verification_status
+            },
+            status=status.HTTP_200_OK
+        )
 
 
 # =====================================
@@ -277,12 +311,12 @@ class AdminVerificationListView(APIView):
                 status=application_status
             )
 
-        serializer = AdminVerificationSerializer(
+        return paginate_queryset(
+            request,
             queryset,
-            many=True
+            AdminVerificationSerializer,
+            self
         )
-
-        return Response(serializer.data)
 
 
 # =====================================
@@ -309,12 +343,12 @@ class AdminBloodRequestListView(APIView):
                 status=request_status
             )
 
-        serializer = AdminBloodRequestSerializer(
+        return paginate_queryset(
+            request,
             queryset,
-            many=True
+            AdminBloodRequestSerializer,
+            self
         )
-
-        return Response(serializer.data)
 
 
 # =====================================
@@ -342,26 +376,29 @@ class AdminInventoryListView(APIView):
         unit_status = request.query_params.get('status')
 
         if bank_id:
+
             queryset = queryset.filter(
                 blood_bank_id=bank_id
             )
 
         if blood_group:
+
             queryset = queryset.filter(
                 blood_group=blood_group
             )
 
         if unit_status:
+
             queryset = queryset.filter(
                 status=unit_status
             )
 
-        serializer = AdminBloodUnitSerializer(
+        return paginate_queryset(
+            request,
             queryset,
-            many=True
+            AdminBloodUnitSerializer,
+            self
         )
-
-        return Response(serializer.data)
 
 
 # =====================================
@@ -382,16 +419,17 @@ class AdminDonationListView(APIView):
         donation_status = request.query_params.get('status')
 
         if donation_status:
+
             queryset = queryset.filter(
                 status=donation_status
             )
 
-        serializer = AdminDonationRecordSerializer(
+        return paginate_queryset(
+            request,
             queryset,
-            many=True
+            AdminDonationRecordSerializer,
+            self
         )
-
-        return Response(serializer.data)
 
 
 # =====================================
@@ -414,16 +452,17 @@ class AdminCampListView(APIView):
         camp_status = request.query_params.get('status')
 
         if camp_status:
+
             queryset = queryset.filter(
                 status=camp_status
             )
 
-        serializer = AdminCampSerializer(
+        return paginate_queryset(
+            request,
             queryset,
-            many=True
+            AdminCampSerializer,
+            self
         )
-
-        return Response(serializer.data)
 
 
 # =====================================
@@ -444,16 +483,17 @@ class AdminCampRegistrationListView(APIView):
         registration_status = request.query_params.get('status')
 
         if registration_status:
+
             queryset = queryset.filter(
                 status=registration_status
             )
 
-        serializer = AdminCampRegistrationSerializer(
+        return paginate_queryset(
+            request,
             queryset,
-            many=True
+            AdminCampRegistrationSerializer,
+            self
         )
-
-        return Response(serializer.data)
 
 
 # =====================================
@@ -470,9 +510,9 @@ class AdminNotificationListView(APIView):
             recipient=request.user
         ).order_by('-created_at')
 
-        serializer = AdminNotificationSerializer(
+        return paginate_queryset(
+            request,
             queryset,
-            many=True
+            AdminNotificationSerializer,
+            self
         )
-
-        return Response(serializer.data)

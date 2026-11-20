@@ -5,6 +5,11 @@ import API from '../../services/api';
 function BloodBankManagement() {
 
     const [bloodBanks, setBloodBanks] = useState([]);
+
+    const [nextPage, setNextPage] = useState(null);
+    const [previousPage, setPreviousPage] = useState(null);
+    const [totalCount, setTotalCount] = useState(0);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -14,18 +19,45 @@ function BloodBankManagement() {
 
     const [selectedBank, setSelectedBank] = useState(null);
 
-    // Fetch all blood banks
+
+    // Fetch blood banks
     useEffect(() => {
         fetchBloodBanks();
-    }, []);
+    }, [statusFilter]);
 
-    const fetchBloodBanks = async () => {
+
+    // Fetch blood banks with pagination and filter
+    const fetchBloodBanks = async (url = 'admin/blood-banks/') => {
 
         try {
 
-            const response = await API.get('admin/blood-banks/');
+            setLoading(true);
+            setError('');
 
-            setBloodBanks(response.data);
+            let response;
+
+            // First page with filter
+            if (url === 'admin/blood-banks/') {
+
+                response = await API.get(url, {
+                    params: {
+                        status: statusFilter || undefined
+                    }
+                });
+
+            }
+
+            // Next or previous page
+            else {
+
+                response = await API.get(url);
+
+            }
+
+            setBloodBanks(response.data.results);
+            setNextPage(response.data.next);
+            setPreviousPage(response.data.previous);
+            setTotalCount(response.data.count);
 
         }
         catch (error) {
@@ -83,10 +115,12 @@ function BloodBankManagement() {
             setError('');
 
             if (selectedBank?.id === bank.id) {
+
                 setSelectedBank({
                     ...selectedBank,
                     verification_status: newStatus
                 });
+
             }
 
         }
@@ -107,22 +141,18 @@ function BloodBankManagement() {
     };
 
 
-    // Search and filter
+    // Search blood banks on current page
     const filteredBanks = bloodBanks.filter(bank => {
 
         const searchValue = search.toLowerCase();
 
         const matchesSearch =
-            bank.blood_bank_name.toLowerCase().includes(searchValue) ||
-            bank.username.toLowerCase().includes(searchValue) ||
-            bank.registration_number.toLowerCase().includes(searchValue) ||
-            bank.district.toLowerCase().includes(searchValue);
+            (bank.blood_bank_name || '').toLowerCase().includes(searchValue) ||
+            (bank.username || '').toLowerCase().includes(searchValue) ||
+            (bank.registration_number || '').toLowerCase().includes(searchValue) ||
+            (bank.district || '').toLowerCase().includes(searchValue);
 
-        const matchesStatus =
-            !statusFilter ||
-            bank.verification_status === statusFilter;
-
-        return matchesSearch && matchesStatus;
+        return matchesSearch;
 
     });
 
@@ -228,6 +258,8 @@ function BloodBankManagement() {
 
                     <div className="row g-3">
 
+                        {/* Search */}
+
                         <div className="col-md-6">
 
                             <label className="form-label fw-semibold">
@@ -244,6 +276,8 @@ function BloodBankManagement() {
 
                         </div>
 
+
+                        {/* Status Filter */}
 
                         <div className="col-md-6">
 
@@ -385,6 +419,8 @@ function BloodBankManagement() {
 
                                                 <div className="d-flex gap-2">
 
+                                                    {/* View Details */}
+
                                                     <button
                                                         className="btn btn-sm btn-outline-primary"
                                                         onClick={() => setSelectedBank(bank)}
@@ -394,9 +430,13 @@ function BloodBankManagement() {
 
                                                     </button>
 
+
+                                                    {/* Approve and Reject */}
+
                                                     {bank.verification_status === 'PENDING' && (
 
                                                         <>
+
                                                             <button
                                                                 className="btn btn-sm btn-success"
                                                                 onClick={() => handleReview(bank, 'APPROVED')}
@@ -410,6 +450,7 @@ function BloodBankManagement() {
                                                             >
                                                                 Reject
                                                             </button>
+
                                                         </>
 
                                                     )}
@@ -425,6 +466,45 @@ function BloodBankManagement() {
                                 </tbody>
 
                             </table>
+
+                        </div>
+
+                    )}
+
+
+                    {/* Pagination */}
+
+                    {!loading && bloodBanks.length > 0 && (
+
+                        <div className="d-flex justify-content-between align-items-center mt-4">
+
+                            <button
+                                className="btn btn-outline-danger"
+                                disabled={!previousPage}
+                                onClick={() => fetchBloodBanks(previousPage)}
+                            >
+
+                                <i className="bi bi-arrow-left me-2"></i>
+                                Previous
+
+                            </button>
+
+
+                            <span className="text-muted">
+                                Showing {filteredBanks.length} blood banks
+                            </span>
+
+
+                            <button
+                                className="btn btn-outline-danger"
+                                disabled={!nextPage}
+                                onClick={() => fetchBloodBanks(nextPage)}
+                            >
+
+                                Next
+                                <i className="bi bi-arrow-right ms-2"></i>
+
+                            </button>
 
                         </div>
 

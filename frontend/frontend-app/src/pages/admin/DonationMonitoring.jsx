@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import API from '../../services/api';
 
@@ -9,21 +10,24 @@ function DonationMonitoring() {
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [selectedDonation, setSelectedDonation] = useState(null);
 
+    const [nextPage, setNextPage] = useState(null);
+    const [previousPage, setPreviousPage] = useState(null);
+    const [totalCount, setTotalCount] = useState(0);
+
     useEffect(() => {
         fetchDonations();
     }, []);
 
-    const fetchDonations = async () => {
+    const fetchDonations = async (url = 'admin/donations/') => {
         try {
             setLoading(true);
 
-            const response = await API.get('admin/donations/');
+            const response = await API.get(url);
 
-            setDonations(
-                Array.isArray(response.data)
-                    ? response.data
-                    : response.data.results || []
-            );
+            setDonations(response.data.results || []);
+            setNextPage(response.data.next);
+            setPreviousPage(response.data.previous);
+            setTotalCount(response.data.count || 0);
 
             setError('');
         } catch (err) {
@@ -51,7 +55,7 @@ function DonationMonitoring() {
         return matchesSearch && matchesStatus;
     });
 
-    // Get unique statuses from backend records
+    // Get unique statuses from current page
     const statuses = [...new Set(
         donations.map(donation => donation.status).filter(Boolean)
     )];
@@ -74,9 +78,7 @@ function DonationMonitoring() {
         }
     };
 
-    // Statistics
-    const totalDonations = donations.length;
-
+    // Statistics for current page
     const totalUnitsDonated = donations.reduce(
         (total, donation) => total + (Number(donation.units_donated) || 0),
         0
@@ -113,7 +115,7 @@ function DonationMonitoring() {
 
                     <button
                         className="btn btn-outline-danger"
-                        onClick={fetchDonations}
+                        onClick={() => fetchDonations()}
                     >
                         <i className="bi bi-arrow-clockwise me-2"></i>
                         Refresh
@@ -126,7 +128,7 @@ function DonationMonitoring() {
                     <div className="col-md-4">
                         <div className="dashboard-card">
                             <h6 className="text-muted">Total Donation Records</h6>
-                            <h3 className="fw-bold">{totalDonations}</h3>
+                            <h3 className="fw-bold">{totalCount}</h3>
                         </div>
                     </div>
 
@@ -263,6 +265,38 @@ function DonationMonitoring() {
                             </table>
                         </div>
                     )}
+
+                    {/* Pagination */}
+                    {!loading && donations.length > 0 && (
+                        <div className="d-flex justify-content-between align-items-center mt-3">
+
+                            <span className="text-muted">
+                                Total Records: {totalCount}
+                            </span>
+
+                            <div>
+                                <button
+                                    className="btn btn-outline-danger me-2"
+                                    disabled={!previousPage}
+                                    onClick={() => fetchDonations(previousPage)}
+                                >
+                                    <i className="bi bi-chevron-left me-1"></i>
+                                    Previous
+                                </button>
+
+                                <button
+                                    className="btn btn-outline-danger"
+                                    disabled={!nextPage}
+                                    onClick={() => fetchDonations(nextPage)}
+                                >
+                                    Next
+                                    <i className="bi bi-chevron-right ms-1"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    )}
+
                 </div>
 
             </div>

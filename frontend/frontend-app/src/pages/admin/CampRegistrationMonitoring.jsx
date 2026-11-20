@@ -9,14 +9,26 @@ function CampRegistrationMonitoring() {
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [selectedRegistration, setSelectedRegistration] = useState(null);
 
+    const [nextPage, setNextPage] = useState(null);
+    const [previousPage, setPreviousPage] = useState(null);
+    const [totalCount, setTotalCount] = useState(0);
+
     useEffect(() => {
         fetchRegistrations();
     }, []);
 
-    const fetchRegistrations = async () => {
+    const fetchRegistrations = async (url = 'admin/camp-registrations/') => {
         try {
-            const response = await API.get('admin/camp-registrations/');
-            setRegistrations(response.data);
+            setLoading(true);
+
+            const response = await API.get(url);
+
+            setRegistrations(response.data.results || []);
+            setNextPage(response.data.next);
+            setPreviousPage(response.data.previous);
+            setTotalCount(response.data.count || 0);
+
+            setError('');
         } catch (err) {
             console.error('Error fetching camp registrations:', err);
             setError('Failed to load camp registrations.');
@@ -25,7 +37,7 @@ function CampRegistrationMonitoring() {
         }
     };
 
-    // Get unique registration statuses from backend data
+    // Get unique registration statuses from current page
     const statuses = [
         ...new Set(registrations.map(item => item.status).filter(Boolean))
     ];
@@ -46,9 +58,7 @@ function CampRegistrationMonitoring() {
         return matchesSearch && matchesStatus;
     });
 
-    // Statistics
-    const totalRegistrations = registrations.length;
-
+    // Statistics for current page
     const pendingRegistrations = registrations.filter(
         item => item.status === 'PENDING'
     ).length;
@@ -112,7 +122,7 @@ function CampRegistrationMonitoring() {
                             <div>
                                 <p className="text-muted mb-1">Total Registrations</p>
                                 <h3 className="fw-bold mb-0">
-                                    {totalRegistrations}
+                                    {totalCount}
                                 </h3>
                             </div>
                             <i className="bi bi-people card-icon"></i>
@@ -290,10 +300,35 @@ function CampRegistrationMonitoring() {
                     </div>
                 )}
 
-                {!loading && !error && filteredRegistrations.length > 0 && (
-                    <p className="text-muted small mt-3 mb-0">
-                        Showing {filteredRegistrations.length} of {totalRegistrations} registrations.
-                    </p>
+                {/* Pagination */}
+                {!loading && !error && registrations.length > 0 && (
+                    <div className="d-flex justify-content-between align-items-center mt-3">
+
+                        <p className="text-muted small mb-0">
+                            Total Registrations: {totalCount}
+                        </p>
+
+                        <div>
+                            <button
+                                className="btn btn-outline-danger me-2"
+                                disabled={!previousPage}
+                                onClick={() => fetchRegistrations(previousPage)}
+                            >
+                                <i className="bi bi-chevron-left me-1"></i>
+                                Previous
+                            </button>
+
+                            <button
+                                className="btn btn-outline-danger"
+                                disabled={!nextPage}
+                                onClick={() => fetchRegistrations(nextPage)}
+                            >
+                                Next
+                                <i className="bi bi-chevron-right ms-1"></i>
+                            </button>
+                        </div>
+
+                    </div>
                 )}
 
             </div>

@@ -9,21 +9,24 @@ function CampManagement() {
     const [statusFilter, setStatusFilter] = useState('ALL');
     const [selectedCamp, setSelectedCamp] = useState(null);
 
+    const [nextPage, setNextPage] = useState(null);
+    const [previousPage, setPreviousPage] = useState(null);
+    const [totalCount, setTotalCount] = useState(0);
+
     useEffect(() => {
         fetchCamps();
     }, []);
 
-    const fetchCamps = async () => {
+    const fetchCamps = async (url = 'admin/camps/') => {
         try {
             setLoading(true);
 
-            const response = await API.get('admin/camps/');
+            const response = await API.get(url);
 
-            setCamps(
-                Array.isArray(response.data)
-                    ? response.data
-                    : response.data.results || []
-            );
+            setCamps(response.data.results || []);
+            setNextPage(response.data.next);
+            setPreviousPage(response.data.previous);
+            setTotalCount(response.data.count || 0);
 
             setError('');
         } catch (err) {
@@ -51,7 +54,7 @@ function CampManagement() {
         return matchesSearch && matchesStatus;
     });
 
-    // Get status values directly from backend records
+    // Get status values from current page
     const statuses = [...new Set(
         camps.map(camp => camp.status).filter(Boolean)
     )];
@@ -75,17 +78,15 @@ function CampManagement() {
         }
     };
 
-    // Statistics
-    const totalCamps = camps.length;
+    // Statistics for current page
+    const activeCamps = camps.filter(
+        camp => camp.status === 'ACTIVE'
+    ).length;
 
     const totalRegistrations = camps.reduce(
         (total, camp) => total + (Number(camp.registrations_count) || 0),
         0
     );
-
-    const activeCamps = camps.filter(
-        camp => camp.status === 'ACTIVE'
-    ).length;
 
     return (
         <div className="min-vh-100 bg-light">
@@ -114,7 +115,7 @@ function CampManagement() {
 
                     <button
                         className="btn btn-outline-danger"
-                        onClick={fetchCamps}
+                        onClick={() => fetchCamps()}
                     >
                         <i className="bi bi-arrow-clockwise me-2"></i>
                         Refresh
@@ -127,7 +128,7 @@ function CampManagement() {
                     <div className="col-md-4">
                         <div className="dashboard-card">
                             <h6 className="text-muted">Total Camps</h6>
-                            <h3 className="fw-bold">{totalCamps}</h3>
+                            <h3 className="fw-bold">{totalCount}</h3>
                         </div>
                     </div>
 
@@ -262,6 +263,38 @@ function CampManagement() {
                             </table>
                         </div>
                     )}
+
+                    {/* Pagination */}
+                    {!loading && camps.length > 0 && (
+                        <div className="d-flex justify-content-between align-items-center mt-3">
+
+                            <span className="text-muted">
+                                Total Camps: {totalCount}
+                            </span>
+
+                            <div>
+                                <button
+                                    className="btn btn-outline-danger me-2"
+                                    disabled={!previousPage}
+                                    onClick={() => fetchCamps(previousPage)}
+                                >
+                                    <i className="bi bi-chevron-left me-1"></i>
+                                    Previous
+                                </button>
+
+                                <button
+                                    className="btn btn-outline-danger"
+                                    disabled={!nextPage}
+                                    onClick={() => fetchCamps(nextPage)}
+                                >
+                                    Next
+                                    <i className="bi bi-chevron-right ms-1"></i>
+                                </button>
+                            </div>
+
+                        </div>
+                    )}
+
                 </div>
 
             </div>
